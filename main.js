@@ -1,7 +1,10 @@
 var GooglePlusAPI = require('./vendor/gplusapi')
 , fs = require('fs')
-, https = require('https');	 
-var plus = null;
+, https = require('https')
+, lastToken = null;
+fs.exists || require( 'path' ).exists
+var plus = null, key = null;
+var hashtag = "#ifihadglass";
 //hide API key in .gplusapi
 //get one via:
 //https://code.google.com/apis/console/
@@ -9,9 +12,23 @@ fs.readFile( './.gplusapi', function ( err, data ) {
 	if ( err ) {
 		throw err;
 	}
-	var key = data.toString();
-	var path = '/plus/v1/activities?key=AIzaSyBaTMsCBdMDhaqhhc15eQzhpeGy5ydssXI&query=ifihadglass';
-	//console.log( key );
+	key = data;
+	start();
+} );
+
+function start( ) {
+	readNextToken( function( token ) {
+		request( { token: token } );
+	} );
+}
+
+function request( options ) {
+	var nextToken = options.token;
+	var path = '/plus/v1/activities?key=AIzaSyBaTMsCBdMDhaqhhc15eQzhpeGy5ydssXI';
+	path += '&maxResults=20&query=' + encodeURIComponent( hashtag );
+	if ( null !== nextToken ) {
+		path += "&pageToken=" + nextToken;
+	}
 	var request = https.request( {
 		host: 'www.googleapis.com'
 		, port: 443
@@ -26,40 +43,45 @@ fs.readFile( './.gplusapi', function ( err, data ) {
 		} );	
 	 } );
 	 request.end();
-} );
-
+}
 function saveNextToken( token ) {
 	fs.writeFile("./.gplustoken", token, function(err) {
 		if( err ) {
 			console.log( err );
 		} else {
-			console.log("Token saved");
+			console.log("Token saved", token);
 		}
-	});
+	} );
 }
 
-function readNextToken( token, callback ) {
-	fs.readFile("./.gplustoken", token, function( err, data ) {
+function readNextToken( callback ) {
+	fs.readFile("./.gplustoken", function( err, data ) {
 		if( err ) {
-			console.log( err );
-			if ( 'function' is typeof callback ) {
+			console.log( "ERROR", err );
+			if ( 'function' === typeof callback ) {
 				callback( null );
 			}
 		} else {
-			//console.log( "Token", data );
-			if ( 'function' is typeof callback ) {
-				callback( data );
+			if ( 'function' === typeof callback ) {
+				var token = data.toString();
+				console.log("Token read", token);
+				callback( token );
 			}
 		}
-	});
+	} );
 }
 
 
 function parseActivities( body ) {
-	var response = JSON.parse( body );
-	if ( 'undefined' !== typeof response.nextPageToken ) {
-		saveNextToken( response.nextPageToken );
+	var response = JSON.parse( body )
+	, nextToken = response.nextPageToken;
+	if ( null === nextToken || '' === nextToken || nextToken === lastToken ) {
+		throw new Error( "Finished" );
 	}
+	if ( 'undefined' !== typeof nextToken ) {
+		saveNextToken( nextToken );
+	}
+	lastToken = nextToken;
 	items = response.items;
 	if ( 'undefined' !== typeof items ) {
 		var x = 0, length = items.length, item;
@@ -68,14 +90,22 @@ function parseActivities( body ) {
 			writeActivity( item );
 		}
 	}
+	start();
 }
 function writeActivity( object ) {
-	id = object.id;
-	fs.writeFile("./data/google/" + id, JSON.stringify( object ), function(err) {
-		if( err ) {
-			console.log( err );
+	var id = object.id
+	, filepath = './data/google/' + id;
+	fs.exists( filepath, function ( exists ) {
+		if ( false === exists ) {
+			fs.writeFile( filepath, JSON.stringify( object ), function( err ) {
+				if( err ) {
+					console.log( err );
+				} else {
+					console.log("Activity written", id);
+				}
+			} );
 		} else {
-			console.log("Activity written");
-		}
-	});
+			console.log( "Activity exists", id );
+		} 
+	} );
 }
