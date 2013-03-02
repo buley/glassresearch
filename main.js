@@ -18,12 +18,12 @@ fs.readFile( './.gplusapi', function ( err, data ) {
 		, method: 'GET'
 	} ).on( 'response', function( response ) {
 		var body = '';
-		response.on( "data", function( chunk ) {		
+		response.on( 'data', function( chunk ) {		
 			body += chunk.toString();
 		} );	
-		response.on( "close", function( ) {
+		response.on( 'close', function( ) {
 			console.log( body );
 		} );
-	 });
+	 } );
 	 request.end();
 } );
