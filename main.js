@@ -1,6 +1,5 @@
 var GooglePlusAPI = require('./vendor/gplusapi')
 , fs = require('fs')
-, http = require( 'http' )
 , https = require('https');	 
 var plus = null;
 //hide API key in .gplusapi
@@ -14,8 +13,9 @@ fs.readFile( './.gplusapi', function ( err, data ) {
 	//console.log( key );
 	var request = https.request( {
 		host: 'www.googleapis.com'
-		, path: '/plus/v1/activities?key=' + key + '&query=%23ifihadglass'
+		, port: 443
 		, method: 'GET'
+		, path: '/plus/v1/activities?key=' + key + '&query=ifihadglass'
 	} ).on( 'response', function( response ) {
 		var body = '';
 		response.on( 'data', function( chunk ) {		
