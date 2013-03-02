@@ -1,0 +1,3 @@
+[submodule "vendor/gplusapi"]
+	path = vendor/gplusapi
+	url = https://github.com/tmarshall/Google-Plus-API.git
