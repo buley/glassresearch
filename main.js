@@ -15,7 +15,8 @@ fs.readFile( './.gplusapi', function ( err, data ) {
 		host: 'www.googleapis.com'
 		, port: 443
 		, method: 'GET'
-		, path: '/plus/v1/activities?key=' + key + '&query=ifihadglass'
+		, path: '/plus/v1/activities?key=' + key + '
+		//, path: '/plus/v1/activities?key=' + key + '&query=ifihadglass'
 	} ).on( 'response', function( response ) {
 		var body = '';
 		response.on( 'data', function( chunk ) {		
