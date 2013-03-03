@@ -1,0 +1,14 @@
+array(6) {
+  ["all"]=>
+  int(21684)
+  ["male"]=>
+  int(8407)
+  ["gendered"]=>
+  int(20877)
+  ["female"]=>
+  int(2117)
+  ["ambiguous"]=>
+  int(10353)
+  ["uncertain"]=>
+  int(807)
+}
