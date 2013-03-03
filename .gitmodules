@@ -1,3 +1,6 @@
 [submodule "vendor/gplusapi"]
 	path = vendor/gplusapi
 	url = https://github.com/tmarshall/Google-Plus-API.git
+[submodule "vendor/genderfromname"]
+	path = vendor/genderfromname
+	url = https://github.com/petewarden/genderfromname.git
